@@ -1,10 +1,8 @@
 import { OrderSummary } from "@/components/order-summary";
 import React from "react";
 
-export const metadata = {
-  title: "Order Summary",
-};
+export default function page({ params }: any) {
+  const { id } = params;
 
-export default function page() {
-  return <OrderSummary />;
+  return <OrderSummary id={id} />;
 }

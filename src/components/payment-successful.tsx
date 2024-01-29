@@ -27,7 +27,7 @@ export function PaymentSuccessful() {
 }
 
 function Package2Icon(
-  props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>
+  props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>,
 ) {
   return (
     <svg
@@ -50,7 +50,7 @@ function Package2Icon(
 }
 
 function CheckCircleIcon(
-  props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>
+  props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>,
 ) {
   return (
     <svg

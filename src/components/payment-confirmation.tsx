@@ -53,7 +53,7 @@ export function PaymentConfirmation() {
 }
 
 function ArrowLeftIcon(
-  props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>
+  props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>,
 ) {
   return (
     <svg
