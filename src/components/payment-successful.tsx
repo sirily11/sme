@@ -4,6 +4,7 @@
  */
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { JSX, SVGProps } from "react";
 
 export function PaymentSuccessful() {
   return (
@@ -25,7 +26,9 @@ export function PaymentSuccessful() {
   );
 }
 
-function Package2Icon(props) {
+function Package2Icon(
+  props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>
+) {
   return (
     <svg
       {...props}
@@ -46,7 +49,9 @@ function Package2Icon(props) {
   );
 }
 
-function CheckCircleIcon(props) {
+function CheckCircleIcon(
+  props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>
+) {
   return (
     <svg
       {...props}
