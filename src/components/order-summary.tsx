@@ -14,13 +14,14 @@ function getTotalPrice(dishes: any) {
   return totalPrice.toFixed(2);
 }
 
-export async function OrderSummary({ id }: { id: any }) {
+export async function OrderSummary({ id }: { id: string }) {
   const response = await fetch(
     process.env.MONGODB_API_URL + "/action/findOne",
     {
       method: "POST",
       headers: {
         apiKey: process.env.MONGODB_API_KEY as string,
+        contentType: "application/json",
       },
       body: JSON.stringify({
         collection: "order",
@@ -32,6 +33,10 @@ export async function OrderSummary({ id }: { id: any }) {
       }),
     },
   );
+
+  if (!response.ok) {
+    return <div>Failed to load order summary</div>;
+  }
 
   const orderData = await response.json();
   const dishes = orderData.document.dishes;
