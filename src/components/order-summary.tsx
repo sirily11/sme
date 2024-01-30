@@ -5,78 +5,123 @@
 
 import Link from "next/link";
 
-export function OrderSummary() {
+function getTotalPrice(dishes: any){
+  let totalPrice = 0;
+  Object.keys(dishes).map((dish) => {
+    totalPrice +=
+        dishes[dish].price
+  });
+  return totalPrice;
+}
+
+export async function OrderSummary({ id }: { id: string }) {
+  const response = await fetch(
+    process.env.MONGODB_API_URL + "/action/aggregate",
+    {
+      method: "POST",
+      headers: {
+        apiKey: process.env.MONGODB_API_KEY as string,
+        contentType: "application/json",
+      },
+      body: JSON.stringify({
+        collection: "Orders",
+        database: "eft-demo",
+        dataSource: "demo",
+        pipeline: [
+          {
+            "$match": {
+              "chatRoomId": id
+            }
+          },
+          {
+            "$lookup": {
+              "from": "Dish",
+              "localField": "Dishes",
+              "foreignField": "_id",
+              "as": "dishesInfo"
+            }
+          },
+          {
+            "$addFields": {
+              "Dishes": "$dishesInfo"
+            }
+          },
+          {
+            "$project": {
+              "dishesInfo": 0
+            }
+          }
+        ]
+      }),
+    },
+  );
+
+
+  if (!response.ok) {
+    return <div>Failed to load order summary</div>;
+  }
+
+  const orderData = await response.json();
+  const orders = orderData.documents;
+  if (orders.length === 0) {
+    return <div>Failed to load order summary</div>;
+  }
+
+  const order = orders[0];
+  const dishes = order.Dishes
+  console.log("orderData", dishes);
+  const orderTime = order.createdAt;
+  const totalPrice = getTotalPrice(dishes).toString();
+
   return (
     <div key="1" className="flex flex-col h-screen bg-white">
       <header className="border-b border-gray-200 px-4 py-2">
         <h1 className="font-semibold text-lg">Order Summary</h1>
-        <p className="text-sm text-gray-500">Order #12345</p>
-        <p className="text-sm text-gray-500">Placed on January 10, 2024</p>
+        <p className="text-sm text-gray-500">
+          订单编号: {order._id}
+        </p>
+        <p className="text-sm text-gray-500">
+          订单时间:{" "}
+          {orderTime}
+        </p>
       </header>
       <main className="flex-1 overflow-y-auto border-b border-gray-200 px-4 py-2">
         <div className="grid gap-4">
-          <div className="flex items-center gap-4 border border-gray-200 rounded-lg p-4 dark:border-gray-800">
-            <img
-              alt="Food Image"
-              className="w-16 h-16 object-cover rounded-md"
-              height="100"
-              src="https://estarfood.com/wp-content/uploads/2021/05/G2300-1.jpg"
-              style={{
-                aspectRatio: "100/100",
-                objectFit: "cover",
-              }}
-              width="100"
-            />
-            <div className="flex-1">
-              <h2 className="font-semibold text-base">Fries</h2>
-              <p className="text-sm text-gray-500">Quantity: 1</p>
+          {Object.keys(dishes).map((key) => (
+            <div
+              className="flex items-center gap-4 border border-gray-200 rounded-lg p-4 dark:border-gray-800"
+              key={dishes.name}
+            >
+              <img
+                alt="Food Image"
+                className="w-16 h-16 object-cover rounded-md"
+                height="100"
+                src={dishes[key].image}
+                style={{
+                  aspectRatio: "100/100",
+                  objectFit: "cover",
+                }}
+                width="100"
+              />
+              <div className="flex-1">
+                <h2 className="font-semibold text-base">{dishes[key].name}</h2>
+                <p className="text-sm text-gray-500">
+                  Quantity: {dishes[key].quantity}
+                </p>
+              </div>
+              <p className="font-semibold text-base">
+                ${parseFloat(dishes[key].price).toFixed(2)}
+              </p>
             </div>
-            <p className="font-semibold text-base">$10.00</p>
-          </div>
-          <div className="flex items-center gap-4 border border-gray-200 rounded-lg p-4 dark:border-gray-800">
-            <img
-              alt="Food Image"
-              className="w-16 h-16 object-cover rounded-md"
-              height="100"
-              src="https://online.citysuper.com.hk/cdn/shop/products/170200172-1-coca-cola-hk-coke-330ml-can_1024x1024.jpg?v=1570279023"
-              style={{
-                aspectRatio: "100/100",
-                objectFit: "cover",
-              }}
-              width="100"
-            />
-            <div className="flex-1">
-              <h2 className="font-semibold text-base">Coke</h2>
-              <p className="text-sm text-gray-500">Quantity: 1</p>
-            </div>
-            <p className="font-semibold text-base">$10.00</p>
-          </div>
-          <div className="flex items-center gap-4 border border-gray-200 rounded-lg p-4 dark:border-gray-800">
-            <img
-              alt="Food Image"
-              className="w-16 h-16 object-cover rounded-md"
-              height="100"
-              src="https://www.thecookierookie.com/wp-content/uploads/2023/04/featured-stovetop-burgers-recipe.jpg"
-              style={{
-                aspectRatio: "100/100",
-                objectFit: "cover",
-              }}
-              width="100"
-            />
-            <div className="flex-1">
-              <h2 className="font-semibold text-base">Burger</h2>
-              <p className="text-sm text-gray-500">Quantity: 1</p>
-            </div>
-            <p className="font-semibold text-base">$10.00</p>
-          </div>
+          ))}
         </div>
       </main>
       <footer className="border-t border-gray-200 px-4 py-2">
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-semibold text-lg">Total</h2>
-          <p className="font-semibold text-lg">$30.00</p>
+          <p className="font-semibold text-lg">${getTotalPrice(dishes).toFixed(2)}</p>
         </div>
-        <Link href={"/order/confirm"}>
+        <Link href={"/order/confirm/"+totalPrice}>
           <button className="w-full h-10 bg-gradient-to-r from-purple-500 to-indigo-500 text-white rounded-md shadow-md transform transition hover:scale-105">
             Pay Now
           </button>
