@@ -14,7 +14,7 @@ function getTotalPrice(dishes: any) {
     return totalPrice.toFixed(2);
 }
 
-export async function ProfileCredit({ id }: { id: string }) {
+export async function ProfileCredit({id}: { id: string }) {
     const response = await fetch(
         process.env.MONGODB_API_URL + "/action/findOne",
         {
@@ -41,26 +41,58 @@ export async function ProfileCredit({ id }: { id: string }) {
     const userData = await response.json();
 
     return (
-        <div key="1" className="flex flex-col h-screen bg-white">
-            <header className="border-b border-gray-200 px-4 py-2">
-                <h1 className="font-semibold text-lg">User Credit</h1>
-                <p className="text-sm text-gray-500">
-                    用户名称: {userData.document.userName}
+        <div
+            className="p-4 py-8 max-h-screen min-h-screen bg-gradient-to-br dark:bg-gradient-to-br dark:from-blue-700 dark:to-violet-900">
+            <div className="px-4 sm:px-0 mb-8">
+                <h3 className="text-base font-semibold leading-7 text-gray-900">
+                    Account
+                </h3>
+                <p className="mt-1 max-w-2xl text-sm leading-6 text-gray-500">
+                    Personal details.
                 </p>
-                <p className="text-sm text-gray-500">
-                    电话号码: {userData.document.phone}
-                </p>
-            </header>
-            <main className="flex-1 overflow-y-auto border-b border-gray-200 px-4 py-2">
-                <div className="grid gap-4">
-                    <div style={{fontSize: '24px'}}>
-                        用户积分：{userData.document.credit}
+            </div>
+
+            <div className="border border-gray-300 rounded-md p-4 ">
+                <dl className="divide-y divide-gray-100">
+                    <div className="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                        <dt className="text-sm font-medium leading-6 text-gray-900">
+                            用户名称
+                        </dt>
+                        <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                            {userData.document.userName}
+                        </dd>
                     </div>
-                    <div style={{position: 'absolute', right: '10px', bottom: '10px'}}>
-                        最近更新时间：{new Date().toLocaleString()}
+                    <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                        <dt className="text-sm font-medium leading-6 text-gray-900">
+                            电话号码
+                        </dt>
+                        <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                            {userData.document.phone}
+                        </dd>
                     </div>
+                    <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                        <dt className="text-sm font-medium leading-6 text-gray-900">
+                            DID
+                        </dt>
+                        <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                            DID: {userData.document.userName}/hk/HK/CN
+                        </dd>
+                    </div>
+                    <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                        <dt className="text-sm font-medium leading-6 text-gray-900">
+                            用户积分
+                        </dt>
+                        <dd className="mt-1 text-3xl leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                            {userData.document.credit}
+                        </dd>
+                    </div>
+
+                </dl>
+                <div style={{position: 'absolute', right: '10px', bottom: '10px'}}>
+                    上次更新时间：{new Date().toLocaleString('en-US', {timeZone: 'Asia/Shanghai'})}
                 </div>
-            </main>
+            </div>
         </div>
-    );
+    )
+        ;
 }
