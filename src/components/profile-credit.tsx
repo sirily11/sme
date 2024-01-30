@@ -17,6 +17,23 @@ export async function ProfileCredit({ id }: { id: string }) {
         dataSource: "RJdid",
         filter: {
           phone: id,
+export async function ProfileCredit({id}: { id: string }) {
+    const response = await fetch(
+        process.env.MONGODB_API_URL + "/action/findOne",
+        {
+            method: "POST",
+            headers: {
+                apiKey: process.env.MONGODB_API_KEY as string,
+                contentType: "application/json",
+            },
+            body: JSON.stringify({
+                collection: "user",
+                database: "sme-demo",
+                dataSource: "RJdid",
+                filter: {
+                    phone: id,
+                },
+            }),
         },
       }),
     },
