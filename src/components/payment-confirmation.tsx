@@ -6,14 +6,14 @@
  */
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { JSX, SVGProps, useState } from "react";
+import {JSX, SVGProps, useState} from "react";
 
 class PaymentMethod {
   "FPS" = "FPS";
-  "EFT" = "EFT";
+  "EFT" = "EFT"
 }
 
-export function PaymentConfirmation(url: any) {
+export function PaymentConfirmation(url : any) {
   const [paymentMethod, setPaymentMethod] = useState("EMPTY");
   console.log(url);
 
@@ -34,19 +34,35 @@ export function PaymentConfirmation(url: any) {
           <h2 className="text-sm font-semibold mb-1">
             Supported Payment Methods
           </h2>
-          <div className="py-4"></div>
-          <a
-            href={url.url}
-            onClick={() => setPaymentMethod("FPS")}
-            className="flex flex-col items-center pt-4"
-          >
-            <img className="h-88 rounded-md mx-auto" src="/payment.png" />
-          </a>
+          <ul className="grid gap-4">
+  <button onClick={() => setPaymentMethod('FPS')}>
+    <li className={`flex items-center p-4 rounded-lg border ${paymentMethod === 'FPS' ? 'bg-blue-200' : 'bg-white'}`}>
+      <span className="text-lg">FPS</span>
+    </li>
+  </button>
+  <button onClick={() => setPaymentMethod('EFT')}>
+    <li className={`flex items-center p-4 rounded-lg border ${paymentMethod === 'EFT' ? 'bg-blue-200' : 'bg-white'}`}>
+      <span className="text-lg">EFT</span>
+    </li>
+  </button>
+</ul>
         </div>
       </main>
-      <footer className="p-4 text-center">
-        Payment service provided by EFTPay
-      </footer>
+      <footer className="p-4 border-t">
+  {paymentMethod === 'EFT' ? (
+    <a href={url} target="_blank" rel="noopener noreferrer">
+      <button className="w-full h-10 bg-gradient-to-r from-purple-500 to-indigo-500 text-white rounded-md shadow-md transform transition hover:scale-105">
+        Confirm Payment Method
+      </button>
+    </a>
+  ) : (
+    <Link href={"/order/success"}>
+      <button className="w-full h-10 bg-gradient-to-r from-purple-500 to-indigo-500 text-white rounded-md shadow-md transform transition hover:scale-105">
+        Confirm Payment Method
+      </button>
+    </Link>
+  )}
+</footer>
     </div>
   );
 }
