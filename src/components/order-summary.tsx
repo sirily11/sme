@@ -5,76 +5,101 @@
 
 import Link from "next/link";
 
-export function OrderSummary() {
+function getTotalPrice(dishes: any) {
+  let totalPrice = 0;
+  Object.keys(dishes).map((dish) => {
+    totalPrice +=
+      parseFloat(dishes[dish].price) * parseInt(dishes[dish].quantity);
+  });
+  return totalPrice.toFixed(2);
+}
+
+export async function OrderSummary({ id }: { id: string }) {
+  const response = await fetch(
+    process.env.MONGODB_API_URL + "/action/findOne",
+    {
+      method: "POST",
+      headers: {
+        apiKey: process.env.MONGODB_API_KEY as string,
+        contentType: "application/json",
+      },
+      body: JSON.stringify({
+        collection: "order",
+        database: "sme-demo",
+        dataSource: "RJdid",
+        filter: {
+          chatRoomId: id,
+        },
+      }),
+    },
+  );
+
+  if (!response.ok) {
+    return <div>Failed to load order summary</div>;
+  }
+
+  const orderData = await response.json();
+  const dishes = orderData.document.dishes;
+  const orderTime = orderData.document.createTime;
+  const stdTime = new Date(orderTime);
+
   return (
     <div key="1" className="flex flex-col h-screen bg-white">
       <header className="border-b border-gray-200 px-4 py-2">
         <h1 className="font-semibold text-lg">Order Summary</h1>
-        <p className="text-sm text-gray-500">Order #12345</p>
-        <p className="text-sm text-gray-500">Placed on January 10, 2024</p>
+        <p className="text-sm text-gray-500">
+          订单编号: {orderData.document._id}
+        </p>
+        <p className="text-sm text-gray-500">
+          订单时间:{" "}
+          {stdTime.getFullYear() +
+            "-" +
+            (stdTime.getMonth() + 1) +
+            "-" +
+            stdTime.getDate() +
+            " " +
+            stdTime.getHours() +
+            ":" +
+            stdTime.getMinutes() +
+            ":" +
+            stdTime.getSeconds()}
+        </p>
       </header>
       <main className="flex-1 overflow-y-auto border-b border-gray-200 px-4 py-2">
         <div className="grid gap-4">
-          <div className="flex items-center gap-4 border border-gray-200 rounded-lg p-4 dark:border-gray-800">
-            <img
-              alt="Food Image"
-              className="w-16 h-16 object-cover rounded-md"
-              height="100"
-              src="https://estarfood.com/wp-content/uploads/2021/05/G2300-1.jpg"
-              style={{
-                aspectRatio: "100/100",
-                objectFit: "cover",
-              }}
-              width="100"
-            />
-            <div className="flex-1">
-              <h2 className="font-semibold text-base">Fries</h2>
-              <p className="text-sm text-gray-500">Quantity: 1</p>
+          {Object.keys(dishes).map((key) => (
+            <div
+              className="flex items-center gap-4 border border-gray-200 rounded-lg p-4 dark:border-gray-800"
+              key={dishes.name}
+            >
+              <img
+                alt="Food Image"
+                className="w-16 h-16 object-cover rounded-md"
+                height="100"
+                src={dishes[key].imageUrl}
+                style={{
+                  aspectRatio: "100/100",
+                  objectFit: "cover",
+                }}
+                width="100"
+              />
+              <div className="flex-1">
+                <h2 className="font-semibold text-base">{dishes[key].name}</h2>
+                <p className="text-sm text-gray-500">
+                  Quantity: {dishes[key].quantity}
+                </p>
+              </div>
+              <p className="font-semibold text-base">
+                ${parseFloat(dishes[key].price).toFixed(2)}
+              </p>
             </div>
-            <p className="font-semibold text-base">$10.00</p>
-          </div>
-          <div className="flex items-center gap-4 border border-gray-200 rounded-lg p-4 dark:border-gray-800">
-            <img
-              alt="Food Image"
-              className="w-16 h-16 object-cover rounded-md"
-              height="100"
-              src="https://online.citysuper.com.hk/cdn/shop/products/170200172-1-coca-cola-hk-coke-330ml-can_1024x1024.jpg?v=1570279023"
-              style={{
-                aspectRatio: "100/100",
-                objectFit: "cover",
-              }}
-              width="100"
-            />
-            <div className="flex-1">
-              <h2 className="font-semibold text-base">Coke</h2>
-              <p className="text-sm text-gray-500">Quantity: 1</p>
-            </div>
-            <p className="font-semibold text-base">$10.00</p>
-          </div>
-          <div className="flex items-center gap-4 border border-gray-200 rounded-lg p-4 dark:border-gray-800">
-            <img
-              alt="Food Image"
-              className="w-16 h-16 object-cover rounded-md"
-              height="100"
-              src="https://www.thecookierookie.com/wp-content/uploads/2023/04/featured-stovetop-burgers-recipe.jpg"
-              style={{
-                aspectRatio: "100/100",
-                objectFit: "cover",
-              }}
-              width="100"
-            />
-            <div className="flex-1">
-              <h2 className="font-semibold text-base">Burger</h2>
-              <p className="text-sm text-gray-500">Quantity: 1</p>
-            </div>
-            <p className="font-semibold text-base">$10.00</p>
-          </div>
+          ))}
         </div>
       </main>
       <footer className="border-t border-gray-200 px-4 py-2">
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-semibold text-lg">Total</h2>
-          <p className="font-semibold text-lg">$30.00</p>
+          <p className="font-semibold text-lg">${getTotalPrice(dishes)}</p>
         </div>
         <Link href={"/order/confirm"}>
           <button className="w-full h-10 bg-gradient-to-r from-purple-500 to-indigo-500 text-white rounded-md shadow-md transform transition hover:scale-105">
